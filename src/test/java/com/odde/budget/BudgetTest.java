@@ -3,12 +3,31 @@ package com.odde.budget;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BudgetTest {
 
-    private final BudgetService budgetService = new BudgetService();
+    private final BudgetRepo budgetRepo = new BudgetRepo() {
+        @Override
+        public List<Budget> findAll() {
+            List<Budget> budgetList = new ArrayList<>();
+            budgetList.add(octBudget);
+            budgetList.add(novBudget);
+            budgetList.add(decBudget);
+
+            return budgetList;
+        }
+
+        private final Budget octBudget = new Budget(YearMonth.of(2022,10), 31);
+        private final Budget novBudget = new Budget(YearMonth.of(2022,11), 30);
+        private final Budget decBudget = new Budget(YearMonth.of(2022, 12), 62);
+    };
+
+    private final BudgetService budgetService = new BudgetService(budgetRepo);
 
     @Test
     public void GIVEN_start_later_than_budget_THEN_0_yuan() {
