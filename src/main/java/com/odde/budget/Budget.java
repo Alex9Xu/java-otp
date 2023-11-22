@@ -4,8 +4,8 @@ import java.time.YearMonth;
 
 public class Budget {
 
-    private YearMonth yearMonth;
-    private int amount;
+    private final YearMonth yearMonth;
+    private final int amount;
 
     Budget(YearMonth time, int money) {
         yearMonth = time;
@@ -18,5 +18,9 @@ public class Budget {
 
     public int getAmount() {
         return amount;
+    }
+
+    public int getDailyAmount() {
+        return  amount / yearMonth.lengthOfMonth();
     }
 }
