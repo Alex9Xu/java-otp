@@ -2,36 +2,22 @@ package com.odde.budget;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 
 public class BudgetService {
 
-    private final BudgetRepo budgetRepo = new BudgetRepo() {
-        @Override
-        public List<Budget> findAll() {
-            List<Budget> budgetList = new ArrayList<>();
-            budgetList.add(octBudget);
-            budgetList.add(novBudget);
-            budgetList.add(decBudget);
+    private final List<Budget> budgetList;
 
-            return budgetList;
-        }
-
-        private final Budget octBudget = new Budget(YearMonth.of(2022,10), 31);
-        private final Budget novBudget = new Budget(YearMonth.of(2022,11), 30);
-        private final Budget decBudget = new Budget(YearMonth.of(2022, 12), 62);
-    };
+    public BudgetService(BudgetRepo budgetRepo) {
+        budgetList = budgetRepo.findAll();
+    }
 
     public long queryBudget(LocalDate start, LocalDate end) {
-        if (budgetRepo.findAll().isEmpty())
+        if (budgetList.isEmpty())
             return 0;
 
-        int budgetRepoSize = budgetRepo.findAll().size();
-
         int budgetAmount = 0;
-        for (int i=0; i<budgetRepoSize; i++) {
-            Budget budgetItem = budgetRepo.findAll().get(i);
+        for (Budget budgetItem : budgetList) {
             budgetAmount += getMoneyInThisMonth(budgetItem, start, end);
         }
 
@@ -59,19 +45,13 @@ public class BudgetService {
             return repoItem.getAmount();
 
         YearMonth yearMonth = YearMonth.of(start.getYear(), start.getMonth());
-        int monthLength = yearMonth.lengthOfMonth();
-        int passedDays = start.getDayOfMonth() - 1;
-        int validDays = monthLength - passedDays;
+        int validDays = yearMonth.lengthOfMonth() - start.getDayOfMonth() + 1;
 
-        return (repoItem.getAmount() / monthLength) * validDays;
+        return repoItem.getDailyAmount() * validDays;
     }
 
     private int getMoneyInEnd(LocalDate end, Budget repoItem) {
-        YearMonth yearMonth = YearMonth.of(end.getYear(), end.getMonth());
-        int monthLength = yearMonth.lengthOfMonth();
-
         int validDays = end.getDayOfMonth();
-
-        return (repoItem.getAmount() / monthLength) * validDays;
+        return repoItem.getDailyAmount() * validDays;
     }
 }
